@@ -9,6 +9,7 @@ pipeline {
         JAR_NAME    = 'banking-demo-1.0.0.jar'
         DEPLOY_DIR  = '/home/ubuntu/app'
         JAVA_HOME   = '/opt/java/openjdk'
+        EC2_HOST    = 'ubuntu@172.31.5.152'
         DB_PASSWORD = credentials('DB_PASSWORD')
     }
 
@@ -48,10 +49,16 @@ pipeline {
                 sh """
                     sed -i 's|Environment=\"DB_PASSWORD=.*\"|Environment=\"DB_PASSWORD=${DB_PASSWORD}\"|' \
                         /etc/systemd/system/banking.service
-                    sudo systemctl daemon-reload
-                    sudo systemctl restart banking
-                    sleep 15
-                    sudo systemctl status banking --no-pager
+                    echo "✅ Inject DB_PASSWORD xong"
+                """
+
+                sh """
+                    ssh -o StrictHostKeyChecking=no ${EC2_HOST} '
+                        sudo systemctl daemon-reload
+                        sudo systemctl restart banking
+                        sleep 5
+                        sudo systemctl status banking --no-pager
+                    '
                     echo "✅ Deploy xong!"
                 """
             }
@@ -61,7 +68,7 @@ pipeline {
             steps {
                 echo "💓 Kiểm tra app còn sống không..."
                 sleep(time: 20, unit: 'SECONDS')
-                sh 'sudo systemctl is-active banking || exit 1'
+                sh "ssh -o StrictHostKeyChecking=no ${EC2_HOST} 'sudo systemctl is-active banking || exit 1'"
                 echo "✅ App đang chạy bình thường!"
             }
         }
