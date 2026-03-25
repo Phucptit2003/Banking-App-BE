@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:mysql://172.31.5.152:3306/banking_db?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://127.0.0.1:3306/banking_db?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&allowPublicKeyRetrieval=true
     username: banking_user
     password: ${DB_PASSWORD}
   jpa:
