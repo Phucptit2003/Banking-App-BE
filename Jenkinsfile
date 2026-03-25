@@ -48,10 +48,10 @@ pipeline {
                 sh """
                     sed -i 's|Environment=\"DB_PASSWORD=.*\"|Environment=\"DB_PASSWORD=${DB_PASSWORD}\"|' \
                         /etc/systemd/system/banking.service
-                    systemctl daemon-reload
-                    systemctl restart banking
+                    sudo systemctl daemon-reload
+                    sudo systemctl restart banking
                     sleep 15
-                    systemctl status banking --no-pager
+                    sudo systemctl status banking --no-pager
                     echo "✅ Deploy xong!"
                 """
             }
@@ -61,7 +61,7 @@ pipeline {
             steps {
                 echo "💓 Kiểm tra app còn sống không..."
                 sleep(time: 20, unit: 'SECONDS')
-                sh 'systemctl is-active banking || exit 1'
+                sh 'sudo systemctl is-active banking || exit 1'
                 echo "✅ App đang chạy bình thường!"
             }
         }
