@@ -5,6 +5,10 @@
 pipeline {
     agent any
 
+    tools {
+            maven 'Maven 3' 
+        }
+
     // Biến môi trường dùng trong pipeline
     environment {
         APP_NAME    = 'banking-demo'
