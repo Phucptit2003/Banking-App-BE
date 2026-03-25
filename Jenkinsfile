@@ -48,21 +48,11 @@ pipeline {
                 sh """
                     sed -i 's|Environment=\"DB_PASSWORD=.*\"|Environment=\"DB_PASSWORD=${DB_PASSWORD}\"|' \
                         /etc/systemd/system/banking.service
-                    echo "✅ Inject DB_PASSWORD xong"
-                """
-
-                // Restart app: kill process cũ rồi chạy lại
-                sh """
-                    # Tắt process cũ nếu đang chạy
-                    pkill -f '${JAR_NAME}' || true
-                    sleep 5
-
-                    # Chạy app mới ở background
-                    nohup java -jar ${DEPLOY_DIR}/${JAR_NAME} \
-                        --spring.profiles.active=prod \
-                        > ${DEPLOY_DIR}/logs/app.log 2>&1 &
-
-                    echo "✅ App đã restart!"
+                    systemctl daemon-reload
+                    systemctl restart banking
+                    sleep 15
+                    systemctl status banking --no-pager
+                    echo "✅ Deploy xong!"
                 """
             }
         }
@@ -71,7 +61,7 @@ pipeline {
             steps {
                 echo "💓 Kiểm tra app còn sống không..."
                 sleep(time: 20, unit: 'SECONDS')
-                sh 'pgrep -f ${JAR_NAME} || exit 1'
+                sh 'systemctl is-active banking || exit 1'
                 echo "✅ App đang chạy bình thường!"
             }
         }
