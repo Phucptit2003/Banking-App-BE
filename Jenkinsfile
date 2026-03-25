@@ -6,7 +6,7 @@ pipeline {
     agent any
 
     tools {
-            maven 'Maven 3' 
+            maven 'Maven 3'
         }
 
     // Biến môi trường dùng trong pipeline
@@ -14,7 +14,7 @@ pipeline {
         APP_NAME    = 'banking-demo'
         JAR_NAME    = 'banking-demo-1.0.0.jar'
         DEPLOY_DIR  = '/home/ubuntu/app'
-        JAVA_HOME   = '/usr/lib/jvm/java-17-openjdk-amd64'
+        JAVA_HOME   = '/opt/java/openjdk'
 
         // Jenkins tự giải mã từ Credentials vault — không bao giờ in ra log
         DB_PASSWORD = credentials('DB_PASSWORD')
