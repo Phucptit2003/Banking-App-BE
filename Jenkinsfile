@@ -49,20 +49,14 @@ pipeline {
 
         // ----------------------------------------
         stage('4. Deploy') {
-        // ----------------------------------------
             steps {
                 echo "🚀 Đang deploy lên EC2..."
 
-                // Bước 4a: Copy JAR mới vào thư mục deploy
                 sh """
-                    cp target/${JAR_NAME} ${DEPLOY_DIR}/${JAR_NAME}
+                    cp \${WORKSPACE}/target/${JAR_NAME} ${DEPLOY_DIR}/${JAR_NAME}
                     echo "✅ Copy JAR xong"
                 """
 
-                // Bước 4b: Jenkins inject DB_PASSWORD vào systemd service
-                // - DB_PASSWORD lấy từ Jenkins Credentials vault (đã mã hóa)
-                // - Jenkins tự che password trong log, hiện là ****
-                // - Không có file .env, không lưu password trên EC2
                 sh '''
                     sudo sed -i "s|Environment=\\"DB_PASSWORD=.*\\"|Environment=\\"DB_PASSWORD=${DB_PASSWORD}\\"|" \
                         /etc/systemd/system/banking.service
@@ -70,7 +64,6 @@ pipeline {
                     echo "✅ Đã inject DB_PASSWORD vào service"
                 '''
 
-                // Bước 4c: Restart ứng dụng
                 sh """
                     sudo systemctl restart banking
                     sleep 10
