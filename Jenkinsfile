@@ -75,6 +75,7 @@ pipeline {
                 echo "✅ App đang chạy bình thường!"
             }
         }
+    }
 
     post {
         success {
