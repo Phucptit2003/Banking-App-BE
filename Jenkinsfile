@@ -46,10 +46,30 @@ pipeline {
                     echo "✅ Copy JAR xong"
                 """
 
-                // Bước 2: Inject DB_PASSWORD + restart (không dùng sudo)
+                // Bước 2: Ghi lại toàn bộ service file với password mới
                 sh """
-                    sed -i 's|Environment=\\"DB_PASSWORD=.*\\"|Environment=\\"DB_PASSWORD=${DB_PASSWORD}\\"|' \
-                        /etc/systemd/system/banking.service
+                    cat > /etc/systemd/system/banking.service << EOF
+        [Unit]
+        Description=Banking Spring Boot Application
+        After=network.target mysql.service
+        Requires=mysql.service
+
+        [Service]
+        User=ubuntu
+        WorkingDirectory=/home/ubuntu/app
+        Environment="DB_PASSWORD=${DB_PASSWORD}"
+        Environment="SPRING_PROFILES_ACTIVE=prod"
+        ExecStart=/usr/bin/java -jar /home/ubuntu/app/banking-demo-1.0.0.jar
+        ExecStop=/bin/kill -SIGTERM \\\$MAINPID
+        SuccessExitStatus=143
+        StandardOutput=append:/home/ubuntu/app/logs/app.log
+        StandardError=append:/home/ubuntu/app/logs/app-error.log
+        Restart=on-failure
+        RestartSec=15
+
+        [Install]
+        WantedBy=multi-user.target
+        EOF
                     systemctl daemon-reload
                     systemctl restart banking
                     sleep 10
